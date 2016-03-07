@@ -13,7 +13,7 @@ module ActiveRecord::TypedStore
     end
 
     NO_DEFAULT_GIVEN = Object.new
-    [:string, :text, :integer, :float, :date_time, :date, :boolean, :decimal].each do |type|
+    [:string, :text, :integer, :float, :datetime, :date, :boolean, :decimal].each do |type|
       define_method(type) do |name, default: NO_DEFAULT_GIVEN, null: true, array: false, **options|
         @types[name.to_sym] = ActiveRecord::Type.lookup(type)
 
@@ -22,7 +22,7 @@ module ActiveRecord::TypedStore
         end
       end
     end
-    alias_method :datetime, :date_time
+    alias_method :date_time, :datetime
 
     def any(name, **options)
       @types[name.to_sym] = ActiveRecord::Type::Value.new
