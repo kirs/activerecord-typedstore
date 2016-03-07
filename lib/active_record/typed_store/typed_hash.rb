@@ -14,13 +14,13 @@ module ActiveRecord::TypedStore
 
     end
 
-    def initialize(constructor={}, types = {})
+    def initialize(raw_values={}, types = {})
       super()
       @types = types
-      constructor = values.map do |key, value|
+      values = raw_values.map do |key, value|
         [key, types[key].deserialize(value)]
       end.to_h
-      update(constructor)
+      update(values)
     end
 
     def []=(key, value)
