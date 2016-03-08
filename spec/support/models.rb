@@ -88,7 +88,9 @@ class CreateAllTables < ActiveRecord::Migration
   end
 end
 ActiveRecord::Migration.verbose = true
-CreateAllTables.up
+ActiveRecord::Migration.suppress_messages do
+  CreateAllTables.up
+end
 
 class ColumnCoder
 
