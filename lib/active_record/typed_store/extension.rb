@@ -32,6 +32,7 @@ module ActiveRecord::TypedStore
         super if @typed_store_attribute_methods_generated
         @typed_store_attribute_methods_generated = false
       end
+
       def define_typed_store_attribute_methods
         return if @typed_store_attribute_methods_generated
         store_accessors.each do |attribute|
@@ -49,9 +50,12 @@ module ActiveRecord::TypedStore
     end
 
     def write_store_attribute(store_attribute, key, value)
-      prev_value = read_store_attribute(store_attribute, key)
-      new_value = typed_stores[store_attribute].types[key].cast(value)
-      attribute_will_change!(key.to_s) if new_value != prev_value
+      if typed_stores[store_attribute]
+        prev_value = read_store_attribute(store_attribute, key)
+        new_value = typed_stores[store_attribute].types[key].cast(value)
+        attribute_will_change!(key.to_s) if new_value != prev_value
+      end
+
       super
     end
   end
