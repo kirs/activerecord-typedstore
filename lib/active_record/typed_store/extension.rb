@@ -49,6 +49,11 @@ module ActiveRecord::TypedStore
       end
     end
 
+    def clear_attribute_change(attr_name)
+      return if self.class.store_accessors.include?(attr_name.to_sym)
+      super
+    end
+
     def write_store_attribute(store_attribute, key, value)
       if typed_stores[store_attribute]
         prev_value = read_store_attribute(store_attribute, key)
