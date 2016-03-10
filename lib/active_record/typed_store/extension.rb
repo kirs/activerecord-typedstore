@@ -19,7 +19,8 @@ module ActiveRecord::TypedStore
         dsl = DSL.new(options, &block)
         self.typed_stores = {}
         self.typed_stores[store_attribute] = dsl
-        attribute(store_attribute, Type.new(dsl.types, dsl.defaults))
+
+        attribute(store_attribute, Type.new(dsl.columns, dsl.coder))
         store_accessor(store_attribute, dsl.accessors)
       end
 
@@ -57,7 +58,7 @@ module ActiveRecord::TypedStore
     def write_store_attribute(store_attribute, key, value)
       if typed_stores[store_attribute]
         prev_value = read_store_attribute(store_attribute, key)
-        new_value = typed_stores[store_attribute].types[key].cast(value)
+        new_value = typed_stores[store_attribute].columns[key].type.cast(value)
         attribute_will_change!(key.to_s) if new_value != prev_value
       end
 

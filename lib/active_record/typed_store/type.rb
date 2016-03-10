@@ -1,9 +1,8 @@
 module ActiveRecord::TypedStore
   class Type < ActiveRecord::Type::Serialized
-    def initialize(store_types, defaults)
-      @store_types = store_types
-      @defaults = defaults
-      super(ActiveRecord::Type::Value.new, ActiveRecord::Coders::YAMLColumn.new(::Hash))
+    def initialize(columns, coder)
+      @columns = columns
+      super(ActiveRecord::Type::Value.new, coder)
     end
 
     def deserialize(value)
@@ -12,7 +11,11 @@ module ActiveRecord::TypedStore
       else
         hash = super
       end
-      TypedHash.new(defaults.merge(hash), store_types)
+
+      TypedHash.new(columns).tap do |r|
+        r.update(defaults)
+        r.update(hash)
+      end
     end
 
     def serialize(value)
@@ -23,12 +26,19 @@ module ActiveRecord::TypedStore
     def cast(value)
       value = super
       if value.is_a?(::Hash)
-        TypedHash.new(defaults.merge(value), store_types)
+        TypedHash.new(columns).tap do |r|
+          r.update defaults
+          r.update value
+        end
       end
+    end
+
+    def defaults
+      @columns.map { |k, v| [k, v.default] }.to_h
     end
 
     protected
 
-    attr_reader :store_types, :defaults
+    attr_reader :columns
   end
 end
