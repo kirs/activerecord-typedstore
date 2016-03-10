@@ -7,9 +7,14 @@ shared_examples 'any model' do
   describe 'reset_column_information' do
 
     it 'do not definitely undefine attributes' do
-      expect {
-        described_class.reset_column_information
-      }.to_not change { model.age_changed? }
+      expect(model.age).to be_present
+      expect(model.age_changed?).to eq nil
+
+      described_class.reset_column_information
+
+      model = described_class.new
+      expect(model.age).to be_present
+      expect(model.age_changed?).to eq nil
     end
 
   end
@@ -195,6 +200,7 @@ shared_examples 'any model' do
       it "cast `#{value.inspect}` as `false`" do
         model.public = value
         expect(model.public).to be false
+        expect(model.public?).to be false
       end
 
     end
@@ -525,7 +531,6 @@ shared_examples 'a store' do |retain_type=true|
     end
 
     context 'when column cannot be blank' do
-
       it 'retreive default if not persisted yet, and nothing was assigned' do
         expect(model.nickname).to be == 'Please enter your nickname'
       end
@@ -581,24 +586,6 @@ shared_examples 'a store' do |retain_type=true|
     end
 
   end
-
-  describe 'updated defaults' do
-
-    it 'update defaults for outdated serials' do
-      model.save!
-      expect(model.settings[:brand_new]).to be_nil
-      new_column = ActiveRecord::TypedStore::Column.new(:brand_new, :boolean, null: false, default: true)
-      begin
-        model.class::SettingsHash.columns['brand_new'] = new_column
-        model.reload
-        expect(model.settings[:brand_new]).to be true
-      ensure
-        model.class::SettingsHash.columns.delete('brand_new')
-      end
-    end
-
-  end
-
 end
 
 shared_examples 'a db backed model' do
