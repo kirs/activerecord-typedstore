@@ -1,8 +1,9 @@
 module ActiveRecord::TypedStore
   class Column
-    attr_reader :array, :blank, :name, :default, :type, :null
+    attr_reader :array, :blank, :name, :default, :type, :null, :accessor
 
     def initialize(name, type, options={})
+      @accessor = options.fetch(:accessor, true)
       @name = name
       @type = type
       @default = extract_default(options.fetch(:default, nil))

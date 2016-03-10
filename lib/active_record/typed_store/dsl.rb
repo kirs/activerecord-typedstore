@@ -14,7 +14,7 @@ module ActiveRecord::TypedStore
     end
 
     def accessors
-      @columns.keys
+      @columns.values.select { |v| v.accessor }.map(&:name)
     end
 
     NO_DEFAULT_GIVEN = Object.new
