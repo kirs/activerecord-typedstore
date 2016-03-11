@@ -12,6 +12,7 @@ module ActiveRecord::TypedStore
 
     module ClassMethods
       def store_accessors
+        return [] unless typed_stores
         typed_stores.values.map(&:accessors).flatten
       end
 
@@ -26,7 +27,7 @@ module ActiveRecord::TypedStore
 
       def define_attribute_methods
         super
-        define_typed_store_attribute_methods
+        define_typed_store_attribute_methods if typed_stores
       end
 
       def undefine_attribute_methods # :nodoc:
@@ -56,13 +57,40 @@ module ActiveRecord::TypedStore
     end
 
     def write_store_attribute(store_attribute, key, value)
-      if typed_stores[store_attribute]
+      if typed_stores && typed_stores[store_attribute]
         prev_value = read_store_attribute(store_attribute, key)
         new_value = typed_stores[store_attribute].columns[key].type.cast(value)
         attribute_will_change!(key.to_s) if new_value != prev_value
       end
 
       super
+    end
+
+    def query_attribute(attr_name)
+      if self.class.store_accessors.include? attr_name.to_sym
+        value = public_send(attr_name)
+
+        case value
+        when true        then true
+        when false, nil  then false
+        else
+          if value.respond_to?(:zero?)
+            !value.zero?
+          else
+            !value.blank?
+          end
+        end
+      else
+        super
+      end
+    end
+
+    def changes_include?(attr_name)
+      if self.class.store_accessors.include? attr_name.to_sym
+        !!super
+      else
+        super
+      end
     end
   end
 end

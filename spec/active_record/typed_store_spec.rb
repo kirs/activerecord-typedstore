@@ -8,13 +8,13 @@ shared_examples 'any model' do
 
     it 'do not definitely undefine attributes' do
       expect(model.age).to be_present
-      expect(model.age_changed?).to eq nil
+      expect(model.age_changed?).to eq false
 
       described_class.reset_column_information
 
       model = described_class.new
       expect(model.age).to be_present
-      expect(model.age_changed?).to eq nil
+      expect(model.age_changed?).to eq false
     end
 
   end
@@ -685,7 +685,6 @@ shared_examples 'a model supporting arrays' do |pg_native=false|
 
 end
 
-
 describe Sqlite3RegularARModel do
   it_should_behave_like 'any model'
   it_should_behave_like 'a db backed model'
@@ -723,14 +722,14 @@ describe YamlTypedStoreModel do
   it_should_behave_like 'a model supporting arrays'
 end
 
-# describe JsonTypedStoreModel do
-#   it_should_behave_like 'any model'
-#   it_should_behave_like 'a store'
-#   it_should_behave_like 'a model supporting arrays'
-# end
+describe JsonTypedStoreModel do
+  it_should_behave_like 'any model'
+  it_should_behave_like 'a store'
+  it_should_behave_like 'a model supporting arrays'
+end
 
-# describe MarshalTypedStoreModel do
-#   it_should_behave_like 'any model'
-#   it_should_behave_like 'a store'
-#   it_should_behave_like 'a model supporting arrays'
-# end
+describe MarshalTypedStoreModel do
+  it_should_behave_like 'any model'
+  it_should_behave_like 'a store'
+  it_should_behave_like 'a model supporting arrays'
+end

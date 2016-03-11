@@ -23,6 +23,7 @@ module ActiveRecord::TypedStore
         if options
           type_options = options.extract!(:scale, :limit, :precision)
         end
+        # binding.pry if name.to_s == "public"
         if options.key?(:default)
           options[:default] = decode_default(options[:default])
         end
@@ -37,18 +38,14 @@ module ActiveRecord::TypedStore
     end
 
     def decode_default(value)
-      if @coder.respond_to?(:assert_default_value)
-        if @coder.assert_valid_value(value)
-          @coder.load(value)
-        else
-          value
-        end
-      else
+      if @coder.is_a?(ActiveRecord::Coders::YAMLColumn)
         begin
           @coder.load(value)
         rescue
           value
         end
+      else
+        value
       end
     end
   end
